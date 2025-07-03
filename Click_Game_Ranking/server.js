@@ -43,3 +43,9 @@ app.get('/api/ranking', (req, res) => {
 });
 
 app.listen(PORT, () => console.log('Server running on http://localhost:' + PORT));
+
+// ランキングをリセットするAPI
+app.post('/api/reset', (req, res) => {
+  fs.writeFileSync(DATA_FILE, JSON.stringify([], null, 2));
+  res.json({ ok: true, message: "ランキングをリセットしました" });
+});
