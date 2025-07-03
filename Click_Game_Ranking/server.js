@@ -3,12 +3,18 @@ const fs = require('fs');
 const cors = require('cors');
 const path = require('path');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000; // ← Render対応でPORT取得方法を修正
+
 app.use(cors());
 app.use(express.json());
 
-// HTMLや静的ファイルも同じディレクトリから配信
+// 静的ファイルの配信
 app.use(express.static(__dirname));
+
+// ここを追加！ トップページでHTMLを返す
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'click-game-ranking.html'));
+});
 
 const DATA_FILE = path.join(__dirname, 'scores.json');
 
