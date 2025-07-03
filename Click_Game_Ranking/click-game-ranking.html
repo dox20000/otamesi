@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>クリックゲーム ランキングつき</title>
+  <style>
+    body { text-align:center; font-family:sans-serif;}
+    #btn { font-size:2em; padding:20px 40px; margin:40px;}
+    #score { font-size:2em; }
+    #name { font-size:1em; width:6em; text-align:center;}
+    ol { font-size:1.2em; display:inline-block; text-align:left;}
+    #ranking-title { margin-top:40px; }
+  </style>
+</head>
+<body>
+  <h1>クリックゲーム</h1>
+  <p>10秒間で何回ボタンをクリックできるか挑戦しよう！</p>
+  <div>
+    <input id="name" placeholder="名前(3文字以内)" maxlength="3">
+  </div>
+  <button id="btn">スタート</button>
+  <div id="score">スコア: 0</div>
+  <div id="time">残り時間: 10秒</div>
+  <h2 id="ranking-title">ランキング</h2>
+  <ol id="ranking"></ol>
+  <script>
+    let score = 0;
+    let time = 10;
+    let started = false;
+    let timer;
+    const btn = document.getElementById('btn');
+    const scoreDiv = document.getElementById('score');
+    const timeDiv = document.getElementById('time');
+    const nameInput = document.getElementById('name');
+
+    function postScore(name, score) {
+      fetch('/api/score', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name, score })
+      }).then(loadRanking);
+    }
+
+    function loadRanking() {
+      fetch('/api/ranking')
+        .then(res => res.json())
+        .then(data => {
+          const ranking = document.getElementById('ranking');
+          ranking.innerHTML = '';
+          data.forEach((item, i) => {
+            const li = document.createElement('li');
+            li.textContent = `${item.name}: ${item.score}`;
+            ranking.appendChild(li);
+          });
+        });
+    }
+    loadRanking(); // 初回表示
+
+    btn.onclick = function() {
+      if (!started) {
+        started = true;
+        score = 0;
+        time = 10;
+        btn.textContent = "クリック！";
+        scoreDiv.textContent = 'スコア: 0';
+        timeDiv.textContent = '残り時間: 10秒';
+        btn.disabled = false;
+        nameInput.disabled = true;
+        timer = setInterval(() => {
+          time--;
+          timeDiv.textContent = `残り時間: ${time}秒`;
+          if (time === 0) {
+            clearInterval(timer);
+            btn.disabled = true;
+            btn.textContent = "終了";
+            started = false;
+            nameInput.disabled = false;
+            const name = nameInput.value.trim().slice(0,3) || '???';
+            postScore(name, score);
+          }
+        }, 1000);
+      } else if (time > 0) {
+        score++;
+        scoreDiv.textContent = `スコア: ${score}`;
+      }
+    }
+  </script>
+</body>
+</html>
