@@ -1,0 +1,8 @@
+# node_modulesはNode.jsプロジェクトの基本
+node_modules/
+
+# Firebaseサービスアカウント鍵ファイル
+click-game-ranking-sys-firebase-adminsdk-fbsvc-bcc0dbf3b9.json
+
+# 環境変数ファイル（もしあれば）
+.env
